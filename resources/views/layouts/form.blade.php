@@ -6,11 +6,11 @@
             @csrf
             <div class="form-group">
                 <div class="form-group">            
-                    {{ Form::label('name', 'Nombre')}}
+                    {{ Form::label('name', __('fields.name'))}}
                     {{ Form::text('name', '', array('class' => 'form-control', 'autofocus')) }}
                 </div>
                 <div class="form-group">
-                    {{ Form::label('email', 'Correo electrónico') }}
+                    {{ Form::label('email', __('fields.email')) }}
                     {{ Form::email('email', '', array('class' => 'form-control')) }}
                 </div>
                 @foreach ($questions as $question)
@@ -21,9 +21,9 @@
                 @endforeach
             <div class="form-group">
                 {{ Form::checkbox('remember', 'remember', array('class' => 'form-check-input')) }}
-                {{ Form::label('remember', 'Recuérdame', array('class' => 'form-check-label')) }}
+                {{ Form::label('remember', __('fields.remember'), array('class' => 'form-check-label')) }}
             </div>
-            {{ Form::submit('Registrarse', array('class' => 'btn btn-primary mt-2')) }}
+            {{ Form::submit(__('fields.register'), array('class' => 'btn btn-primary mt-2')) }}
         {{ Form::close() }}
 
         @if ($errors->any())

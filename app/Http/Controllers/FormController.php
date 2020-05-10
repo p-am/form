@@ -14,7 +14,7 @@ class FormController extends Controller
      */
     public function index()
     {
-        $questions = Question::all();
+        $questions = Question::all()->random(3);
         return view('layouts.form', compact('questions'));
     }
 

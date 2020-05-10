@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\Answer;
 use Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
@@ -27,35 +28,32 @@ class UserController extends Controller
      */
     public function verifyUser(Request $request)
     {
-        $questions = true;
-        $questions_key = preg_grep('/^question_/', array_keys($_POST));
-        $question_key = array_shift($questions_key);
-
-        $messages = [
-            $question_key . $questions => 'Tienes que responder por lo menos a una de las preguntas.'
-        ];
-        // dd($question_key);
-        // dd($questions, $question_key);
-        $validator = Validator::make([$question_key], [
-            $question_key => [
-                'required',
-                false
-                
-            ]
-        ], $messages);
-        foreach ($_POST as $key => $value) {
-            if (preg_match('/^question_/', $key) && $value !== '') {
-                $questions = false;
-            }
-        }
+        $answers = collect($_POST)->filter(function ($value, $key) {
+            return $value !== 'remember' && strpos($key, '_') && trim($value) !== '';
+        })->all();
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|unique:users|max:255',
-            $question_key => $questions
         ]);
-        $user = new User;
-        $user->create($_POST);
-        return view('layouts.user', compact('user'));
+        if (!count($answers)) {
+            $messages = [
+                'required' => 'Tienes que responder por lo menos a una de las preguntas.'
+            ];
+            $validatedData = $request->validate([
+                'answer' => 'required'
+            ], $messages);
+        }
+        $user = User::create($_POST);
+        foreach ($answers as $id => $value) {
+            Answer::create([
+                'user_id' => $user->id,
+                'question_id' => substr($id, strpos($id, '_') + 1),
+                'answer' => $value
+            ]);
+        }
+        $users = User::all()->reverse();
+        $winner = User::all()->random();
+        return view('layouts.user', compact('users', 'user', 'winner'));
     }
 
     /**
@@ -84,11 +82,20 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
-        // $user = User::find($id);
-        // foreach ($user as $key => $data) {
-        //     dump($key, $data);
-        // }
+        
+        $users = User::find($id);
+        return view('layouts.user', compact('users'));
+    }
+
+    /**
+     * Display all users.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function listUsers()
+    {
+        $users = User::all();
+        return view('layouts.user', compact('users'));
     }
 
     /**

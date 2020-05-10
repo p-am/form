@@ -25,10 +25,17 @@ Route::post('/verifyform', 'FormController@verifyForm')->name('verifyForm');
 
 // UserController
 Route::post('/verifyuser', 'UserController@verifyUser')->name('user');
-Route::post('/user/show/', 'UserController@show')->name('userShow');
+Route::get('/user/show/{$id}', 'UserController@show($id)')->name('userShow');
+Route::get('/users/list', 'UserController@listUsers')->name('usersList');
 
 // QuestionController
-Route::get('/question/create/{$question}', 'QuestionController@create')->name('answer');
+Route::get('/question/create/{$question}', 'QuestionController@create')->name('question');
 
 // AnswerController
 Route::get('/answer/create', 'AnswerController@create')->name('answer');
+
+// Language
+Route::get('/{locale}', function ($locale) {
+    App::setLocale($locale);
+    return redirect()->route('form');
+});
